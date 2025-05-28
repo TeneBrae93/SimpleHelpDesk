@@ -8,7 +8,6 @@
   <style>
     /* CSS Variables for easy theming and spacing */
     :root {
-      /* Use 90% of the viewport width by default for more horizontal space */
       --container-max-width: 90vw;
       --gap: 2rem;
       --bg: #0F172A;
@@ -19,31 +18,42 @@
       --accent: #6366F1;
       --accent-hover: #4F46E5;
     }
-
+  
     /* Reset & Base */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+    html, body {
+      height: 100%;
+    }
+  
     body {
+      display: flex;
+      flex-direction: column;
       font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
       padding: 2rem;
     }
-
+  
     /* Container adjusted to fill more space */
     .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
       max-width: var(--container-max-width);
       margin: 0 auto;
       padding: 0 1rem;
     }
-
+  
     /* Responsive Grid: auto-fit with min width */
     .grid {
+      flex: 1;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: var(--gap);
     }
-
+  
     /* Header */
     header {
       text-align: center;
@@ -65,7 +75,7 @@
       font-size: clamp(0.875rem, 2.5vw, 1rem);
       color: var(--text-light);
     }
-
+  
     /* FAQ Accordion */
     .faq-item {
       background: var(--card-bg);
@@ -92,7 +102,7 @@
       padding: 0 1rem 1rem;
       color: #CBD5E1;
     }
-
+  
     /* Ticket Form */
     form {
       background: var(--card-bg);
@@ -107,7 +117,8 @@
       color: #FFFFFF;
     }
     form input,
-    form textarea {
+    form textarea,
+    form select {
       width: 100%;
       padding: 0.75rem;
       margin-bottom: 1.25rem;
@@ -118,7 +129,8 @@
       font-size: 1rem;
     }
     form input::placeholder,
-    form textarea::placeholder {
+    form textarea::placeholder,
+    form select:invalid {
       color: #64748B;
     }
     form button {
@@ -133,7 +145,7 @@
       transition: background 0.2s;
     }
     form button:hover { background: var(--accent-hover); }
-
+  
     /* Footer */
     footer {
       text-align: center;
@@ -141,7 +153,7 @@
       color: var(--text-light);
       font-size: 0.875rem;
     }
-
+  
     /* Small screens tweaks */
     @media (max-width: 640px) {
       body { padding: 1rem; }
@@ -150,6 +162,8 @@
       header h1 { font-size: 1.75rem; }
     }
   </style>
+  
+  
 </head>
 <body>
   <div class="container">
@@ -186,13 +200,25 @@
           <label for="subject">Subject</label>
           <input type="text" id="subject" name="subject" placeholder="Brief summary" required>
 
+          <label for="reason">Reason for Ticket</label>
+          <select id="reason" name="reason" required>
+            <option value="" disabled selected>Select a reason</option>
+            <option value="user-access">User Access</option>
+            <option value="course-related">Course Related</option>
+            <option value="other">Other</option>
+          </select>
+
+          <div id="course-name-group" style="display:none;">
+            <label for="course-name">Course Name</label>
+            <input type="text" id="course-name" name="courseName" placeholder="Enter the course name">
+          </div>
+
           <label for="message">Message</label>
           <textarea id="message" name="message" rows="5" placeholder="Describe your issue in detail" required></textarea>
 
           <button type="submit">Send Ticket</button>
         </form>
       </section>
-    </div>
 
     <footer>
       &copy; 2025 Simply Cyber Academy. All rights reserved.
@@ -204,7 +230,7 @@
       e.preventDefault();
       const data = Object.fromEntries(new FormData(this).entries());
       const res = await fetch(
-        'https://helpdesk-proxy.tyramsbey.workers.dev/',
+        'https://helpdeskproxy2.tyramsbey.workers.dev/',
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }
       );
       if (res.ok) {
@@ -212,6 +238,20 @@
         this.reset();
       } else {
         alert('Something went wrong. Please try again.');
+      }
+    });
+  </script>
+  <script>
+    const reasonSelect = document.getElementById('reason');
+    const courseGroup = document.getElementById('course-name-group');
+  
+    reasonSelect.addEventListener('change', function () {
+      if (this.value === 'course-related') {
+        courseGroup.style.display = 'block';
+        document.getElementById('course-name').setAttribute('required', 'true');
+      } else {
+        courseGroup.style.display = 'none';
+        document.getElementById('course-name').removeAttribute('required');
       }
     });
   </script>
